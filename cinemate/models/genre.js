@@ -8,4 +8,4 @@ const genreSchema = new Schema({
 	}
 });
 // Create the model from the schema and export it
-export default mongoose.model('genre', genreSchema)
+export default mongoose.model('Genre', genreSchema)

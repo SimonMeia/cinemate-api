@@ -6,6 +6,7 @@ const router = express.Router();
 // Get tous les films
 router.get("/", function (req, res, next) {
     Movie.find()
+        .populate('genres')
         .exec(function (err, movies) {
             if (err) {
                 return next(err);

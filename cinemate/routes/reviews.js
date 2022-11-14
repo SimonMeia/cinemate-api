@@ -3,6 +3,7 @@ import Review from '../models/review.js'
 import User from "../models/user.js";
 import Movie from "../models/movie.js";
 import Genre from "../models/genre.js";
+import MoviePerson from "../models/moviePerson.js";
 import { TMDB_API_KEY } from "../config.js";
 
 const router = express.Router();
@@ -30,6 +31,10 @@ router.get("/", function (req, res, next) {
 		});
 });
 
+router.get("/:tmdb", async function (req, res, next) {
+	res.send(await createMovie(req.params.tmdb))
+});
+
 // Créé une review
 router.post("/", findMovieID, async function (req, res, next) {
 
@@ -44,7 +49,7 @@ router.post("/", findMovieID, async function (req, res, next) {
 
 });
 
-function findMovieID(req, res, next){
+function findMovieID(req, res, next) {
 	// Check si le film existe dans la base
 	Movie.findOne({ 'tmdbID': req.body.tmdbID }).exec(async function (err, movie) {
 		if (err) {
@@ -77,55 +82,90 @@ router.delete("/:reviewID", function (req, res, next) {
 async function createMovie(tmdbID) {
 	const response = await fetch(`https://api.themoviedb.org/3/movie/${tmdbID}?api_key=${TMDB_API_KEY}`);
 	const movie = await response.json();
-	const genresID = await getMovieGenreIDs(movie.genres)
-	console.log(genresID);
+	const responseCredits = await fetch(`https://api.themoviedb.org/3/movie/${tmdbID}/credits?api_key=${TMDB_API_KEY}`);
+	const credits = await responseCredits.json();
 
-	let movieData = {
-		title: movie.original_title,
-		releaseDate: movie.release_date,
-		posterURL: movie.poster_path,
-		tmdbID: tmdbID,
-		genres: genresID
-	}
-
-	const newMovie = new Movie(movieData);
-
-	newMovie.save(function (err, savedMovie) {
-		if (err) {
-			return next(err);
+	return await getMovieDetails(movie, credits).then(details => {
+		let movieData = {
+			title: movie.original_title,
+			releaseDate: movie.release_date,
+			posterURL: movie.poster_path,
+			tmdbID: tmdbID,
+			genres: details.genresID,
+			moviePeople: details.moviePeople
 		}
-	});
 
-	return newMovie
+		const newMovie = new Movie(movieData);
+
+		newMovie.save(function (err, savedMovie) {
+			if (err) {
+				return next(err);
+			}
+		});
+
+		return newMovie
+	})
 }
 
+async function getMovieDetails(movie, credits) {
+	let movieDetails = {}
+	movieDetails.genresID = await getMovieGenreIDs(movie.genres)
+	movieDetails.moviePeople = await getMoviePeopleIDs(credits)
+	// console.log(movieDetails);
+	return movieDetails
+}
+
+async function getMoviePeopleIDs(credits) {
+	const peopleDB = await MoviePerson.find({})
+	const namePeopleDB = peopleDB.map(p => p.name)
+
+	let people = credits.cast.map(p => p.name).slice(0, 4)
+	people.push(credits.crew.find(p => p.job == 'Director').name);
+	let moviePeopleIDs = []
+
+	for (const person of people) {
+		if (!namePeopleDB.includes(person)) {
+
+			const newPerson = new MoviePerson({ name: person })
+			moviePeopleIDs.push(newPerson._id)
+			newPerson.save(function (err, savedPerson) {
+				if (err) {
+					return next(err)
+				}
+			})
+		} else {
+			let personDB = peopleDB.find(p => p.name == person);
+			moviePeopleIDs.push(personDB._id)
+		}
+	}
+	console.log(moviePeopleIDs)
+	return moviePeopleIDs;
+}
 
 async function getMovieGenreIDs(movieGenres) {
-	return Genre.find().exec(async function (err, genresDB) {
-		if (err) {
-			return next(err);
+	const genresDB = await Genre.find({})
+	const genresIDarray = [];
+	const nameGenreDB = genresDB.map(genre => genre.name)
+
+	for (const genre of movieGenres) {
+		if (!nameGenreDB.includes(genre.name)) {
+
+			const newGenre = new Genre({ name: genre.name })
+			genresIDarray.push(newGenre._id)
+
+			newGenre.save(function (err, savedGenre) {
+				if (err) {
+					return next(err)
+				}
+			})
+		} else {
+			let genreDB = genresDB.find(g => g.name == genre.name);
+			genresIDarray.push(genreDB._id)
 		}
-		let genresID = []
-		const nameGenreDB = genresDB.map(genre => genre.name)
+	}
 
-		for (const genre of movieGenres) {
-			if (!nameGenreDB.includes(genre.name)) {
+	// console.log(genresIDarray);
+	return genresIDarray
 
-				const newGenre = new Genre({ name: genre.name })
-
-				newGenre.save(function (err, savedGenre) {
-					if (err) {
-						return next(err)
-					}
-					genresID.push(savedGenre._id)
-				})
-			} else {
-				let genreDB = genresDB.find(g => g.name == genre.name);
-				genresID.push(genreDB._id)
-			}
-		}
-		console.log(genresID);
-		return genresID
-	})
 }
 export default router;

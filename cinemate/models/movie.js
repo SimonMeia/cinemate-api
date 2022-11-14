@@ -18,10 +18,10 @@ const movieSchema = new Schema({
 		type: String,
 		required: true
 	},
-	// moviePeople: [{
-	// 	type: Schema.Types.ObjectId,
-	// 	ref: 'MoviePerson'
-	// }],
+	moviePeople: [{
+		type: Schema.Types.ObjectId,
+		ref: 'MoviePerson'
+	}],
 	genres: [{
 		type: Schema.Types.ObjectId,
 		ref: 'Genre'
