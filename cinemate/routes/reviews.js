@@ -6,6 +6,7 @@ import Genre from "../models/genre.js";
 import MoviePerson from "../models/moviePerson.js";
 import { TMDB_API_KEY } from "../config.js";
 import { authenticate } from "./auth.js";
+import { ObjectId } from "mongodb";
 
 const router = express.Router();
 
@@ -35,7 +36,7 @@ router.get("/", function (req, res, next) {
 // Get les reviews des groupes d'un user
 router.get("/mygroups", authenticate, function (req, res, next) {
 
-	User.findOne({ 'id_': req.currentUserId }).exec(function (err, currentUser) {
+	let query = User.findOne({ 'id_': req.currentUserId }).exec(function (err, currentUser) {
 		if (err) {
 			return next(err)
 		}
@@ -46,18 +47,30 @@ router.get("/mygroups", authenticate, function (req, res, next) {
 			}
 			friends = friends.map(f => f._id)
 
-			Review.find({ user: { '$in': friends } })
-				.populate('user')
-				.populate('movie')
-				.exec(function (err, reviews) {
-					if (err) {
-						return next(err)
-					}
-					res.send(reviews)
-				})
+			let query = Review.find({ user: { '$in': friends } })
+			query.populate('user')
+			query.populate('movie')
+
+			// Filter review by movies
+			if (Array.isArray(req.query.movie)) {
+				// Find all review from certains movies
+				const movies = req.query.movie.filter(ObjectId.isValid);
+				query = query.where('movie').in(movies);
+			} else if (ObjectId.isValid(req.query.movie)) {
+				// Find all review from certains movies
+				query = query.where('movie').equals(req.query.movie);
+			}
+
+			query.exec(function (err, reviews) {
+				if (err) {
+					return next(err)
+				}
+				res.send(reviews)
+			})
 		})
 
 	})
+
 });
 
 // Créé une review
