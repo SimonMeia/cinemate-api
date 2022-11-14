@@ -22,7 +22,12 @@ router.post("/login", function (req, res, next) {
             }
             // Generate a valid JWT which expires in 7 days.
             const exp = Math.floor(Date.now() / 1000) + 7 * 24 * 3600;
-            const payload = { sub: user._id.toString(), exp: exp };
+            const payload = {
+                sub: user._id.toString(),
+                exp: exp,
+                scope: user.role
+            };
+
             jwt.sign(payload, jwtSecret, function (err, token) {
                 if (err) { return next(err); }
                 res.send({ token: token }); // Send the token to the client.
@@ -51,7 +56,30 @@ export function authenticate(req, res, next) {
             return res.status(401).send("Your token is invalid or has expired");
         } else {
             req.currentUserId = payload.sub;
+
+            // Obtain the list of permissions from the "scope" claim.
+            const scope = payload.scope;
+            req.currentUserPermissions = scope ? scope.split(" ") : [];
+
             next(); // Pass the ID of the authenticated user to the next middleware.
         }
     });
 }
+
+export function authorize(requiredPermission) {
+    // Create an return an authorization middleware. The required permission
+    // will be available in the returned function because it is a closure.
+    return function authorizationMiddleware(req, res, next) {
+      if (!req.currentUserPermissions) {
+        // The user is not authenticated or has no permissions.
+        return res.sendStatus(403);
+      }
+      const authorized = req.currentUserPermissions.includes(requiredPermission);
+      if (!authorized) {
+        // The user is authenticated but does not have the required permission.
+        return res.sendStatus(403);
+      }
+      // The user is authorized.
+      next();
+    };
+  }
