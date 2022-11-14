@@ -7,6 +7,7 @@ const router = express.Router();
 router.get("/", function (req, res, next) {
     Movie.find()
         .populate('genres')
+        .populate('moviePeople')
         .exec(function (err, movies) {
             if (err) {
                 return next(err);

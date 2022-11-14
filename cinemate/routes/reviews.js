@@ -5,6 +5,7 @@ import Movie from "../models/movie.js";
 import Genre from "../models/genre.js";
 import MoviePerson from "../models/moviePerson.js";
 import { TMDB_API_KEY } from "../config.js";
+import { authenticate } from "./auth.js";
 
 const router = express.Router();
 
@@ -31,13 +32,37 @@ router.get("/", function (req, res, next) {
 		});
 });
 
-router.get("/:tmdb", async function (req, res, next) {
-	res.send(await createMovie(req.params.tmdb))
+// Get les reviews des groupes d'un user
+router.get("/mygroups", authenticate, function (req, res, next) {
+
+	User.findOne({ 'id_': req.currentUserId }).exec(function (err, currentUser) {
+		if (err) {
+			return next(err)
+		}
+
+		User.find({ groups: { '$in': currentUser.groups }, _id: { '$ne': currentUser._id } }).exec(function (err, friends) {
+			if (err) {
+				return next(err)
+			}
+			friends = friends.map(f => f._id)
+
+			Review.find({ user: { '$in': friends } })
+				.populate('user')
+				.populate('movie')
+				.exec(function (err, reviews) {
+					if (err) {
+						return next(err)
+					}
+					res.send(reviews)
+				})
+		})
+
+	})
 });
 
 // Créé une review
-router.post("/", findMovieID, async function (req, res, next) {
-
+router.post("/", authenticate, findMovieID, async function (req, res, next) {
+	req.body.user = req.currentUserId
 	const newReview = new Review(req.body);
 
 	newReview.save(function (err, savedReview) {
@@ -46,7 +71,17 @@ router.post("/", findMovieID, async function (req, res, next) {
 		}
 		res.send(savedReview);
 	});
+});
 
+// Supprime une review
+router.delete("/:reviewID", authenticate, function (req, res, next) {
+
+	Review.deleteOne({ _id: req.params.reviewID, user: req.currentUserId }, function (err, review) {
+		if (err) {
+			return next(err);
+		}
+		res.send('number of review deleted : ' + review.deletedCount)
+	})
 });
 
 function findMovieID(req, res, next) {
@@ -68,16 +103,6 @@ function findMovieID(req, res, next) {
 	})
 }
 
-// Supprime un utilisateur
-router.delete("/:reviewID", function (req, res, next) {
-	// Check si l'id est valable ? -> Fonctionne sans le check
-	Review.deleteOne({ _id: req.params.reviewID }, function (err, user) {
-		if (err) {
-			return next(err);
-		}
-		res.send('review deleted')
-	})
-});
 
 async function createMovie(tmdbID) {
 	const response = await fetch(`https://api.themoviedb.org/3/movie/${tmdbID}?api_key=${TMDB_API_KEY}`);
@@ -111,7 +136,6 @@ async function getMovieDetails(movie, credits) {
 	let movieDetails = {}
 	movieDetails.genresID = await getMovieGenreIDs(movie.genres)
 	movieDetails.moviePeople = await getMoviePeopleIDs(credits)
-	// console.log(movieDetails);
 	return movieDetails
 }
 
@@ -138,7 +162,6 @@ async function getMoviePeopleIDs(credits) {
 			moviePeopleIDs.push(personDB._id)
 		}
 	}
-	console.log(moviePeopleIDs)
 	return moviePeopleIDs;
 }
 
@@ -164,7 +187,6 @@ async function getMovieGenreIDs(movieGenres) {
 		}
 	}
 
-	// console.log(genresIDarray);
 	return genresIDarray
 
 }

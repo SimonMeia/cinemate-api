@@ -4,16 +4,27 @@ const Schema = mongoose.Schema;
 const groupSchema = new Schema({
 	name: {
 		type: String,
-		required: true
+		required: true,
+		unique: true
 	},
 	description: {
 		type: String,
-		required: true	
+		required: true
 	},
 	password: {
 		type: String,
-		required: true	
+		required: true
 	}
 });
+
+groupSchema.set("toJSON", {
+	transform: transformJsonUser
+});
+function transformJsonUser(doc, json, options) {
+	// Remove the hashed password from the generated JSON.
+	delete json.password;
+	return json;
+}
+
 // Create the model from the schema and export it
 export default mongoose.model('Group', groupSchema)
