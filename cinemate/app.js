@@ -6,6 +6,7 @@ import usersRouter from "./routes/users.js";
 import groupsRouter from "./routes/groups.js";
 import reviewsRouter from "./routes/reviews.js";
 import moviesRouter from "./routes/movies.js";
+import authRouter from "./routes/auth.js";
 import * as config from "./config.js";
 
 import mongoose from 'mongoose';
@@ -23,6 +24,7 @@ app.use("/users", usersRouter);
 app.use("/groups", groupsRouter);
 app.use("/reviews", reviewsRouter);
 app.use("/movies", moviesRouter);
+app.use("/auth", authRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
