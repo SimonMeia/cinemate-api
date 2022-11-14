@@ -6,10 +6,11 @@ import usersRouter from "./routes/users.js";
 import groupsRouter from "./routes/groups.js";
 import reviewsRouter from "./routes/reviews.js";
 import moviesRouter from "./routes/movies.js";
+import * as config from "./config.js";
 
 import mongoose from 'mongoose';
 mongoose.Promise = Promise;
-mongoose.connect('mongodb://127.0.0.1/cinemate');
+mongoose.connect(config.databaseUrl);
 
 const app = express();
 
