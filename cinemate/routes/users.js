@@ -1,6 +1,7 @@
 import express from "express";
 import bcrypt from 'bcrypt'
 import User from '../models/user.js'
+import { authenticate, authorize } from "./auth.js";
 
 const router = express.Router();
 
@@ -52,8 +53,7 @@ router.post("/", function (req, res, next) {
 
 
 // Supprime un utilisateur
-router.delete("/:userID", function (req, res, next) {
-	// Check si l'id est valable ? -> Fonctionne sans le check
+router.delete("/:userID", authenticate, authorize('admin'), function (req, res, next) {
 	User.deleteOne({ _id: req.params.userID }, function (err, user) {
 		if (err) {
 			return next(err);
@@ -75,7 +75,7 @@ router.get('/:userID/groups', function (req, res, next) {
 })
 
 // Ajouter un utilisateur à un groupe
-router.post('/:userID/groups/:groupID', function (req, res, next) {
+router.post('/:userID/groups/:groupID', authorize('admin'), function (req, res, next) {
 	User.findOne({ _id: req.params.userID }, function (err, user) {
 		if (err) {
 			return next(err);
@@ -93,9 +93,50 @@ router.post('/:userID/groups/:groupID', function (req, res, next) {
 	});
 })
 
+// Rejoindre un groupe
+router.post('/groups/:groupID', authenticate, function (req, res, next) {
+	let currentUserId = req.currentUserId
+	User.findOne({ _id: currentUserId }, function (err, user) {
+		if (err) {
+			return next(err);
+		}
+		if (!user.groups.includes(req.params.groupID)) {
+			user.groups.push(req.params.groupID)
+
+			user.save(function (err) {
+				if (err) {
+					return next(err);
+				}
+			});
+		}
+		res.send(user)
+	});
+})
+
+
 // Enlever un utilisateur d'un groupe
-router.delete('/:userID/groups/:groupID', function (req, res, next) {
+router.delete('/:userID/groups/:groupID', authenticate, authorize('admin'), function (req, res, next) {
 	User.findOne({ _id: req.params.userID }, function (err, user) {
+		if (err) {
+			return next(err);
+		}
+		if (user.groups.includes(req.params.groupID)) {
+			user.groups.splice(user.groups.indexOf(req.params.groupID), 1)
+
+			user.save(function (err) {
+				if (err) {
+					return next(err);
+				}
+			});
+		}
+		res.send(user)
+	});
+})
+
+// Quitter un groupe
+router.delete('/groups/:groupID', authenticate, function (req, res, next) {
+	let currentUserId = req.currentUserId
+	User.findOne({ _id: currentUserId }, function (err, user) {
 		if (err) {
 			return next(err);
 		}
