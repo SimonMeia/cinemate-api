@@ -28,7 +28,12 @@ const userSchema = new Schema({
 			ref: 'Group'
 		}],
 		default: []
-	}
+	},
+	role: {
+		type: String,
+		enum: ['admin', 'user'],
+		default: 'user'
+	},
 });
 
 userSchema.set("toJSON", {
