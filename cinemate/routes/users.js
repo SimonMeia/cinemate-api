@@ -7,6 +7,26 @@ const router = express.Router();
 
 // Get un utilisateur from un ID
 router.get("/:id", function (req, res, next) {
+
+	// User.aggregate([
+	// 	{ $match: {' _id': { "$eq": req.params.id } } },
+	// 	{$limit: 1},
+	// 	{
+	// 		$lookup: {
+	// 			from: 'reviews',
+	// 			localField: '_id',
+	// 			foreignField: 'user',
+	// 			as: 'reviewPublished'
+	// 		}
+	// 	}
+
+	// ], function (err, user) {
+	// 	if (err) {
+	// 		return next(err);
+	// 	}
+	// 	res.send(user);
+	// })
+
 	User.findOne({ '_id': req.params.id })
 		// .populate('groups')
 		.exec(function (err, users) {
@@ -19,14 +39,33 @@ router.get("/:id", function (req, res, next) {
 
 // Get tous les utilisateurs
 router.get("/", function (req, res, next) {
-	User.find()
-		// .populate('groups')
-		.exec(function (err, users) {
-			if (err) {
-				return next(err);
+
+
+	User.aggregate([
+		{
+			$lookup: {
+				from: 'reviews',
+				localField: '_id',
+				foreignField: 'user',
+				as: 'reviewPublished'
 			}
-			res.send(users);
-		});
+		}
+
+	], function (err, users) {
+		if (err) {
+			return next(err);
+		}
+		res.send(users);
+	})
+
+	// 	User.find()
+	// 		// .populate('groups')
+	// 		.exec(function (err, users) {
+	// 			if (err) {
+	// 				return next(err);
+	// 			}
+	// 			res.send(users);
+	// 		});
 });
 
 // Créer un utilisateur

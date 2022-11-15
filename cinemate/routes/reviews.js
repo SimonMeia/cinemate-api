@@ -34,6 +34,7 @@ router.get("/", function (req, res, next) {
 });
 
 // Get les reviews des groupes d'un user
+// localhost:3000/reviews/mygroups?movie=637244fe58d621d548734d13&page=3
 router.get("/mygroups", authenticate, function (req, res, next) {
 
 	let query = User.findOne({ 'id_': req.currentUserId }).exec(function (err, currentUser) {
