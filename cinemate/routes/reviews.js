@@ -47,25 +47,57 @@ router.get("/mygroups", authenticate, function (req, res, next) {
 			}
 			friends = friends.map(f => f._id)
 
-			let query = Review.find({ user: { '$in': friends } })
-			query.populate('user')
-			query.populate('movie')
-
-			// Filter review by movies
-			if (Array.isArray(req.query.movie)) {
-				// Find all review from certains movies
-				const movies = req.query.movie.filter(ObjectId.isValid);
-				query = query.where('movie').in(movies);
-			} else if (ObjectId.isValid(req.query.movie)) {
-				// Find all review from certains movies
-				query = query.where('movie').equals(req.query.movie);
-			}
-
-			query.exec(function (err, reviews) {
+			Review.find({ user: { '$in': friends } }).count(function (err, total) {
 				if (err) {
 					return next(err)
 				}
-				res.send(reviews)
+
+				let query = Review.find({ user: { '$in': friends } })
+				query.populate('user')
+				query.populate('movie')
+
+				// Filter review by movies
+				if (Array.isArray(req.query.movie)) {
+					// Find all review from certains movies
+					const movies = req.query.movie.filter(ObjectId.isValid);
+					query = query.where('movie').in(movies);
+				} else if (ObjectId.isValid(req.query.movie)) {
+					// Find all review from certains movies
+					query = query.where('movie').equals(req.query.movie);
+				}
+
+				// Parse the "pageSize" param (default to 100 if invalid)
+				let pageSize = parseInt(req.query.pageSize, 10);
+				if (isNaN(pageSize) || pageSize < 0 || pageSize > 100) {
+					pageSize = 100;
+				}
+
+				let pageMax = 0
+				if (total % pageSize == 0) {
+					pageMax = total / pageSize
+				} else {
+					pageMax = Math.trunc(total / pageSize) + 1
+				}
+				// Parse the "page" param (default to 1 if invalid)
+				let page = parseInt(req.query.page, 10);
+				if (isNaN(page) || page < 1 || page > pageMax) {
+					page = 1;
+				}
+				// Apply skip and limit to select the correct page of elements
+				query = query.skip((page - 1) * pageSize).limit(pageSize);
+
+				query.exec(function (err, reviews) {
+					if (err) {
+						return next(err)
+					}
+					res.send({
+						page: page,
+						lastPage: pageMax,
+						pageSize: pageSize,
+						total: total,
+						data: reviews
+					});
+				})
 			})
 		})
 
