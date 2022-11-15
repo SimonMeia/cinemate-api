@@ -57,15 +57,6 @@ router.get("/", function (req, res, next) {
 		}
 		res.send(users);
 	})
-
-	// 	User.find()
-	// 		// .populate('groups')
-	// 		.exec(function (err, users) {
-	// 			if (err) {
-	// 				return next(err);
-	// 			}
-	// 			res.send(users);
-	// 		});
 });
 
 // Créer un utilisateur

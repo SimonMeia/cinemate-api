@@ -7,6 +7,7 @@
 import app from "../app.js";
 import createDebugger from "debug";
 import http from "http";
+import { createWebSocketServer } from "../ws.js";
 
 const debug = createDebugger('cinemate:server')
 /**
@@ -17,10 +18,11 @@ const port = normalizePort(process.env.PORT || "3000");
 app.set("port", port);
 
 /**
- * Create HTTP server.
+ * Create HTTP  & WebSocket servers.
  */
 
 const server = http.createServer(app);
+createWebSocketServer(server);
 
 /**
  * Listen on provided port, on all network interfaces.
@@ -85,3 +87,5 @@ function onListening() {
   const bind = typeof addr === "string" ? "pipe " + addr : "port " + addr.port;
   debug("Listening on " + bind);
 }
+
+
