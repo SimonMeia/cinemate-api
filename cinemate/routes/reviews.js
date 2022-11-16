@@ -7,6 +7,7 @@ import MoviePerson from "../models/moviePerson.js";
 import { TMDB_API_KEY } from "../config.js";
 import { authenticate } from "./auth.js";
 import { ObjectId } from "mongodb";
+import { broadcastMessage } from "../ws.js";
 
 const router = express.Router();
 
@@ -57,6 +58,9 @@ router.get("/mygroups", authenticate, function (req, res, next) {
 				query.populate('user')
 				query.populate('movie')
 
+				/**
+				 * DYNAMIC FILTERS
+				 */
 				// Filter review by movies
 				if (Array.isArray(req.query.movie)) {
 					// Find all review from certains movies
@@ -66,7 +70,9 @@ router.get("/mygroups", authenticate, function (req, res, next) {
 					// Find all review from certains movies
 					query = query.where('movie').equals(req.query.movie);
 				}
-
+				/**
+				 * PAGINATION
+				 */
 				// Parse the "pageSize" param (default to 100 if invalid)
 				let pageSize = parseInt(req.query.pageSize, 10);
 				if (isNaN(pageSize) || pageSize < 0 || pageSize > 100) {
@@ -116,6 +122,7 @@ router.post("/", authenticate, findMovieID, async function (req, res, next) {
 			return next(err);
 		}
 		res.send(savedReview);
+		broadcastMessage({ message: 'new review !' });
 	});
 });
 

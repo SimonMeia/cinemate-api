@@ -9,8 +9,12 @@ const router = express.Router();
 router.get("/:id", function (req, res, next) {
 
 	// User.aggregate([
-	// 	{ $match: {' _id': { "$eq": req.params.id } } },
-	// 	{$limit: 1},
+	// 	{
+	// 		$match: { 
+	// 			' _id': req.params.id 
+	// 		}
+	// 	},
+	// 	{ $limit: 1 },
 	// 	{
 	// 		$lookup: {
 	// 			from: 'reviews',
