@@ -12,7 +12,7 @@ export function createWebSocketServer(httpServer) {
 
         // Keep track of clients.
         clients.push(ws);
-
+        clients.forEach(c => c.send(JSON.stringify("Il y a actuellement : " + clients.length + " : utilistateurs connectés")))
         // Listen for messages sent by clients.
         ws.on('message', (message) => {
             // Make sure the message is valid JSON.
@@ -30,9 +30,11 @@ export function createWebSocketServer(httpServer) {
         // Clean up disconnected clients.
         ws.on('close', () => {
             clients.splice(clients.indexOf(ws), 1);
+            clients.forEach(c => c.send(JSON.stringify("Il y a actuellement : " + clients.length + " : utilistateurs connectés")))
         });
     });
 }
+
 
 export function broadcastMessage(message) {
     // You can easily iterate over the "clients" array to send a message to all

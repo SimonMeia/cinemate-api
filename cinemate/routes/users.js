@@ -2,6 +2,7 @@ import express from "express";
 import bcrypt from 'bcrypt'
 import User from '../models/user.js'
 import { authenticate, authorize } from "./auth.js";
+import { broadcastMessage } from "../ws.js";
 
 const router = express.Router();
 
@@ -81,6 +82,7 @@ router.post("/", function (req, res, next) {
 				return next(err);
 			}
 			res.send(savedUser);
+			broadcastMessage({message: "Il y a un nouvel utilisateur sur cinemate !"})
 		});
 	});
 });
