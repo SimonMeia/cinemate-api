@@ -43,7 +43,7 @@ router.get("/:id", function (req, res, next) {
 });
 
 // Get tous les utilisateurs
-router.get("/", function (req, res, next) {
+router.get("/", authenticate,function (req, res, next) {
 
 
 	User.aggregate([
@@ -55,17 +55,17 @@ router.get("/", function (req, res, next) {
 				as: 'reviewPublished'
 			}
 		}
-
 	], function (err, users) {
 		if (err) {
 			return next(err);
 		}
+		users.forEach(u => delete u.password)
 		res.send(users);
 	})
 });
 
 // Créer un utilisateur
-router.post("/", function (req, res, next) {
+router.post("/",function (req, res, next) {
 	const plainPassword = req.body.password;
 	const costFactor = 10;
 
@@ -76,7 +76,6 @@ router.post("/", function (req, res, next) {
 
 		const newUser = new User(req.body);
 		newUser.password = hashedPassword;
-		newUser.registrationDate = Date.now();
 		newUser.save(function (err, savedUser) {
 			if (err) {
 				return next(err);

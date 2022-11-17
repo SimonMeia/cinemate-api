@@ -30,7 +30,7 @@ export function createWebSocketServer(httpServer) {
         // Clean up disconnected clients.
         ws.on('close', () => {
             clients.splice(clients.indexOf(ws), 1);
-            clients.forEach(c => c.send(JSON.stringify("Il y a actuellement : " + clients.length + " : utilistateurs connectés")))
+            clients.forEach(c => c.send(JSON.stringify("Il y a actuellement " + clients.length + " utilistateurs connectés")))
         });
     });
 }

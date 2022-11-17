@@ -20,7 +20,8 @@ const userSchema = new Schema({
 		required: true
 	},
 	registrationDate: {
-		type: Date
+		type: Date,
+		default: Date.now()
 	},
 	groups: {
 		type: [{
