@@ -1,0 +1,380 @@
+openapi: 3.0.3
+info:
+  title: Cinemate
+  description: API for the Cinemate app develloped in the ArchiOWeb course
+  termsOfService: http://swagger.io/terms/
+  contact:
+    email: simon.meia@heig-vd.ch
+  version: 1.0.0
+externalDocs:
+  description: Link to the Github repo
+  url: https://github.com/marilynthemo96/cinemate
+servers:
+  - url: http://localhost:3000
+tags:
+  - name: users
+  - name: groups
+  - name: reviews
+  - name: movies
+  - name: auth
+  - name: genres
+  - name: moviePeople
+paths:
+  /users:
+    get:
+      tags:
+        - users
+      summary: Retrieve all users
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UserWithReview"
+        "400":
+          description: Invalid status value
+        "401":
+          description: Unauthorize
+      security:
+        - bearerAuth: []
+    post:
+      tags:
+        - users
+      summary: Create a new user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserPost"
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserGet"
+        "401":
+          $ref: "#/components/responses/401Unauthorized"
+      security:
+        - bearerAuth: []
+  /users/{userID}:
+    get:
+      tags:
+        - users
+      summary: Get a specific user from an ID
+      parameters:
+        - in: path
+          name: userID
+          required: true
+          schema:
+            type: string
+          description: User ID
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserGet"
+        "400":
+          description: Invalid id value
+        "401":
+          $ref: "#/components/responses/401Unauthorized"
+      security:
+        - bearerAuth: []
+    delete:
+      tags:
+        - users
+      summary: Delete a specific user from an ID
+      description: You must be admin du execute this query
+      parameters:
+        - name: userID
+          in: path
+          required: true
+          schema:
+            type: string
+          description: User ID
+      responses:
+        "200":
+          description: successful operation
+          content:
+            text/html:
+              schema:
+                type: string
+                example: User deleted
+        "400":
+          description: Invalid id value
+        "401":
+          $ref: "#/components/responses/401Unauthorized"
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+  /users/{userID}/groups:
+    get:
+      tags:
+        - users
+      summary: Get all the groups containing a specific user
+      parameters:
+        - in: path
+          name: userID
+          required: true
+          schema:
+            type: string
+          description: User ID
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GroupGet"
+        "400":
+          description: Invalid id value
+        "401":
+          $ref: "#/components/responses/401Unauthorized"
+      security:
+        - bearerAuth: []
+  /users/groups/{groupID}:
+    post:
+      tags:
+        - users
+      summary: Join a group
+      parameters:
+        - in: path
+          name: groupID
+          required: true
+          schema:
+            type: string
+          description: Group ID
+      # requestBody:
+      #   content:
+      #     application/json:
+      #       schema:
+      #         $ref: "#/components/schemas/GroupPost"
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserGet"
+        "400":
+          description: Invalid status value
+        "401":
+          $ref: "#/components/responses/401Unauthorized"
+      security:
+        - bearerAuth: []
+    delete:
+      tags:
+        - users
+      summary: Leave a group
+      parameters:
+        - name: groupID
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Group ID
+      responses:
+        "200":
+          description: successful operation
+          content:
+            text/html:
+              schema:
+                $ref: "#/components/schemas/UserGet"
+        "400":
+          description: Invalid id value
+        "401":
+          $ref: "#/components/responses/401Unauthorized"
+  /users/{userID}/groups/{groupID}:
+    post:
+      tags:
+        - users
+      summary: Add a specific user to a specific group
+      description: You must be admin du execute this query
+      parameters:
+        - name: userID
+          in: path
+          required: true
+          schema:
+            type: string
+          description: User ID
+        - name: groupID
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Group ID
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserPost"
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserGet"
+        "400":
+          description: Invalid id value
+        "401":
+          $ref: "#/components/responses/401Unauthorized"
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+      security:
+        - bearerAuth: []
+    delete:
+      tags:
+        - users
+      summary: Add a specific user to a specific group
+      description: You must be admin du execute this query
+      parameters:
+        - name: userID
+          in: path
+          required: true
+          schema:
+            type: string
+          description: User ID
+        - name: groupID
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Group ID
+      responses:
+        "200":
+          description: successful operation
+          content:
+            text/html:
+              schema:
+                type: string
+                example: User deleted
+        "400":
+          description: Invalid id value
+        "401":
+          $ref: "#/components/responses/401Unauthorized"
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+components:
+  schemas:
+    UserBasic:
+      type: object
+      properties:
+        firstName:
+          type: string
+          example: John
+        lastName:
+          type: string
+          example: Doe
+        email:
+          type: string
+          example: john.doe@gmail.com
+        role:
+          type: string
+          enum:
+            - user
+            - admin
+          default: user
+    UserPost:
+      allOf:
+        - $ref: "#/components/schemas/UserBasic"
+        - type: object
+          properties:
+            password:
+              type: string
+              example: 1234
+    UserGet:
+      allOf:
+        - $ref: "#/components/schemas/UserBasic"
+        - type: object
+          properties:
+            _id:
+              type: string
+              example: 6375ef6d1d458a3858c3453e
+            registrationDate:
+              type: string
+              example: 2022-11-17T08:23:09.849Z
+            groups:
+              type: array
+              example: ["6375f0371d458a3858c34545", "6375f0991d458a3858c3454a"]
+    UserWithReview:
+      allOf:
+        - $ref: "#/components/schemas/UserBasic"
+        - type: object
+          properties:
+            reviewPublished:
+              type: array
+              items:
+                $ref: "#/components/schemas/Review"
+    GroupGet:
+      type: object
+      properties:
+        name:
+          type: string
+          example: SF Fans
+        description:
+          type: string
+          example: All the sci-fi fans !
+    GroupPost:
+      type: object
+      properties:
+        name:
+          type: string
+          example: SF Fans
+        description:
+          type: string
+          example: All the sci-fi fans !
+    Review:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: 6375f66afa78c7da10671dc9
+        rating:
+          type: integer
+          example: 5
+        comment:
+          type: string
+          example: Super !
+        date:
+          type: string
+          example: 2022-10-31T00:00:00.000Z
+        user:
+          type: string
+          example: 6375ef6d1d458a3858c3453e
+        movie:
+          type: string
+          example: 6375f5c9fa78c7da10671db6
+        location:
+          type: object
+          $ref: "#/components/schemas/Location"
+        medias:
+          type: array
+          example: []
+    Location:
+      type: object
+      properties:
+        type:
+          type: string
+          example: Point
+        coordinate:
+          type: array
+          example: [6.647778558579233, 46.78060279685718]
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT # optional, for documentation purposes only
+  responses:
+    401Unauthorized:
+      description: You are not authentified
+    403Forbidden:
+      description: You dont have permission to do that
+    404NotFound:
+      description: The specified resource was not found.

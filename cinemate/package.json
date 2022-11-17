@@ -13,10 +13,12 @@
     "debug": "~4.3.4",
     "express": "~4.18.1",
     "http-errors": "^2.0.0",
+    "js-yaml": "^4.1.0",
     "jsonwebtoken": "^8.5.1",
     "mongodb": "^4.11.0",
     "mongoose": "^6.7.0",
     "morgan": "~1.10.0",
+    "swagger-ui-express": "^4.6.0",
     "ws": "^8.11.0"
   },
   "devDependencies": {
