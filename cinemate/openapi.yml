@@ -24,7 +24,8 @@ paths:
     get:
       tags:
         - users
-      summary: Retrieve all users
+      summary: Get all users
+      description: You must be connected to execute this query
       responses:
         "200":
           description: successful operation
@@ -65,6 +66,7 @@ paths:
       tags:
         - users
       summary: Get a specific user from an ID
+      description: You must be connected to execute this query
       parameters:
         - in: path
           name: userID
@@ -89,7 +91,7 @@ paths:
       tags:
         - users
       summary: Delete a specific user from an ID
-      description: You must be admin du execute this query
+      description: You must be connected AND be admin to execute this query
       parameters:
         - name: userID
           in: path
@@ -116,6 +118,7 @@ paths:
       tags:
         - users
       summary: Get all the groups containing a specific user
+      description: You must be connected to execute this query
       parameters:
         - in: path
           name: userID
@@ -143,6 +146,7 @@ paths:
       tags:
         - users
       summary: Join a group
+      description: You must be connected to execute this query
       parameters:
         - in: path
           name: groupID
@@ -172,6 +176,7 @@ paths:
       tags:
         - users
       summary: Leave a group
+      description: You must be connected to execute this query
       parameters:
         - name: groupID
           in: path
@@ -195,7 +200,7 @@ paths:
       tags:
         - users
       summary: Add a specific user to a specific group
-      description: You must be admin du execute this query
+      description: You must be connected AND be admin to execute this query
       parameters:
         - name: userID
           in: path
@@ -233,7 +238,7 @@ paths:
       tags:
         - users
       summary: Add a specific user to a specific group
-      description: You must be admin du execute this query
+      description: You must be connected AND be admin to execute this query
       parameters:
         - name: userID
           in: path
@@ -261,6 +266,96 @@ paths:
           $ref: "#/components/responses/401Unauthorized"
         "403":
           $ref: "#/components/responses/403Forbidden"
+  /users/{groupID}:
+    get:
+      tags:
+        - users
+      summary: Get all the users from a specific group
+      description: You must be connected to execute this query
+      parameters:
+        - in: path
+          name: groupID
+          required: true
+          schema:
+            type: string
+          description: Group ID
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UserGet"
+        "400":
+          description: Invalid id value
+        "401":
+          $ref: "#/components/responses/401Unauthorized"
+      security:
+        - bearerAuth: []
+  /groups:
+    get:
+      tags:
+        - groups
+      summary: Get all groups
+      description: You must be connected to execute this query
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GroupGet"
+        "400":
+          description: Invalid status value
+        "401":
+          description: Unauthorize
+      security:
+        - bearerAuth: []
+    post:
+      tags:
+        - groups
+      summary: Create a new group
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GroupPost"
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserGet"
+        "401":
+          $ref: "#/components/responses/401Unauthorized"
+      security:
+        - bearerAuth: []
+  /reviews:
+    get:
+      tags:
+        - reviews
+      summary: Get all reviews
+      description: You must be connected AND admin to execute this query
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ReviewGetPopulated"
+        "400":
+          description: Invalid status value
+        "401":
+          description: Unauthorize
+      security:
+        - bearerAuth: []
 components:
   schemas:
     UserBasic:
@@ -305,16 +400,19 @@ components:
               example: ["6375f0371d458a3858c34545", "6375f0991d458a3858c3454a"]
     UserWithReview:
       allOf:
-        - $ref: "#/components/schemas/UserBasic"
+        - $ref: "#/components/schemas/UserGet"
         - type: object
           properties:
             reviewPublished:
               type: array
               items:
-                $ref: "#/components/schemas/Review"
+                $ref: "#/components/schemas/ReviewGet"
     GroupGet:
       type: object
       properties:
+        _id:
+          type: string
+          example: 6375ef6d1d458a3858c3453e
         name:
           type: string
           example: SF Fans
@@ -330,12 +428,12 @@ components:
         description:
           type: string
           example: All the sci-fi fans !
-    Review:
+        password:
+          type: string
+          example: 1234
+    ReviewBasic:
       type: object
       properties:
-        _id:
-          type: string
-          example: 6375f66afa78c7da10671dc9
         rating:
           type: integer
           example: 5
@@ -345,18 +443,102 @@ components:
         date:
           type: string
           example: 2022-10-31T00:00:00.000Z
-        user:
-          type: string
-          example: 6375ef6d1d458a3858c3453e
-        movie:
-          type: string
-          example: 6375f5c9fa78c7da10671db6
         location:
           type: object
           $ref: "#/components/schemas/Location"
         medias:
           type: array
           example: []
+    ReviewGet:
+      allOf:
+        - $ref: "#/components/schemas/ReviewBasic"
+        - type: object
+          properties:
+            _id:
+              type: string
+              example: 6375f66afa78c7da10671dc9
+            user:
+              type: string
+              example: 6375ef6d1d458a3858c3453e
+            movie:
+              type: string
+              example: 6375f5c9fa78c7da10671db6
+    ReviewGetPopulated:
+      allOf:
+        - $ref: "#/components/schemas/ReviewBasic"
+        - type: object
+          properties:
+            _id:
+              type: string
+              example: 6375f66afa78c7da10671dc9
+            user:
+              type: array
+              items:
+                $ref: "#/components/schemas/UserGet"
+            movie:
+              type: array
+              items:
+                $ref: "#/components/schemas/MovieGet"
+    MovieBasic:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: 6375f66afa78c7da10671dc9
+        title:
+          type: string
+          example: avatar
+        posterURL:
+          type: string
+          example: /jRXYjXNq0Cs2TcJjLkki24MLp7u.jpg
+        releaseDate:
+          type: string
+          example: 2009-12-15T00:00:00.000Z
+        tmdbID: 
+          type: number
+          example: 19995
+    MovieGet:
+      allOf:
+        - $ref: "#/components/schemas/MovieBasic"
+        - type: object
+          properties:
+            moviePeople:
+              type: array
+              example: ["6375f5c9fa78c7da10671db1", "6375f5c9fa78c7da10671db2"]
+            genre:
+              type: array
+              example: ["6375f66afa78c7da10671dc9", "6375f5c9fa78c7da10671db6"]
+    MovieGetPopulated:
+      allOf:
+        - $ref: "#/components/schemas/MovieBasic"
+        - type: object
+          properties:
+            moviePeople:
+              type: array
+              items:
+                $ref: "#/components/schemas/MoviePeople"
+            genre:
+              type: array
+              items:
+                $ref: "#/components/schemas/Genre"
+    Genre:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: 6375f66afa78c7da10671dc9
+        name:
+          type: string
+          example: Action
+    MoviePeople:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: 6375f66afa78c7da10671dc9
+        name:
+          type: string
+          example: James Cameron
     Location:
       type: object
       properties:

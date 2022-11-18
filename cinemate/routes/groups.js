@@ -6,18 +6,8 @@ import bcrypt from 'bcrypt'
 
 const router = express.Router();
 
-// Get les users d'un groupe
-router.get("/:groupID/users", function (req, res, next) {
-	User.find({ 'groups': req.params.groupID }).exec(function (err, users) {
-		if (err) {
-			return next(err);
-		}
-		res.send(users);
-	})
-});
-
 // Get tous les groupes
-router.get("/", function (req, res, next) {
+router.get("/", authenticate, function (req, res, next) {
 	Group.find().exec(function (err, groups) {
 		if (err) {
 			return next(err);

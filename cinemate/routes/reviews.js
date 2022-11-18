@@ -5,7 +5,7 @@ import Movie from "../models/movie.js";
 import Genre from "../models/genre.js";
 import MoviePerson from "../models/moviePerson.js";
 import { TMDB_API_KEY } from "../config.js";
-import { authenticate } from "./auth.js";
+import { authenticate, authorize } from "./auth.js";
 import { ObjectId } from "mongodb";
 import { broadcastMessage } from "../ws.js";
 
@@ -22,7 +22,7 @@ router.get("/users/:userID", function (req, res, next) {
 });
 
 // Get toutes les reviews
-router.get("/", function (req, res, next) {
+router.get("/", authenticate, authorize('admin'), function (req, res, next) {
 	Review.find()
 		.populate('user')
 		.populate('movie')
