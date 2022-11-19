@@ -16,9 +16,9 @@ tags:
   - name: groups
   - name: reviews
   - name: movies
-  - name: auth
   - name: genres
   - name: moviePeople
+  - name: auth
 paths:
   /users:
     get:
@@ -403,13 +403,22 @@ paths:
           description: Invalid id value
         "401":
           $ref: "#/components/responses/401Unauthorized"
-  # documenter les "?movie=xxx"
   /reviews/mygroups:
     get:
       tags:
         - reviews
       summary: Get all reviews from the user's groups
       description: You must be connected to execute this query
+      parameters:
+        - name: movie
+          in: query
+          description: Id(s) of the movie ypu are looking for
+          required: false
+          explode: true
+          schema:
+            type: array
+            items:
+              type: string
       responses:
         "200":
           description: successful operation
@@ -449,6 +458,102 @@ paths:
           description: Invalid id value
         "401":
           description: Unauthorize
+      security:
+        - bearerAuth: []
+  /movie:
+    get:
+      tags:
+        - movies
+      summary: Get all movies
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MovieGetPopulated"
+        "400":
+          description: Invalid id value
+  /movies/{movieID}:
+    get:
+      tags:
+        - movies
+      summary: Get a specific movie from an ID
+      parameters:
+        - in: path
+          name: userID
+          required: true
+          schema:
+            type: string
+          description: User ID
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MovieGetPopulated"
+        "400":
+          description: Invalid id value
+  /genres:
+    get:
+      tags:
+        - genres
+      summary: Get all genres
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Genre"
+        "400":
+          description: Invalid id value
+  /moviepeople:
+    get:
+      tags:
+        - moviePeople
+      summary: Get all moviePeople
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MoviePeople"
+        "400":
+          description: Invalid id value
+  /auth/login:
+    post:
+      tags:
+        - auth
+      summary: Login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Login"
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  {
+                    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c,
+                  }
+        "400":
+          description: Invalid id value
+        "401":
+          $ref: "#/components/responses/401Unauthorized"
       security:
         - bearerAuth: []
 components:
@@ -597,7 +702,7 @@ components:
         releaseDate:
           type: string
           example: 2009-12-15T00:00:00.000Z
-        tmdbID: 
+        tmdbID:
           type: number
           example: 19995
     MovieGet:
@@ -651,6 +756,15 @@ components:
         coordinate:
           type: array
           example: [6.647778558579233, 46.78060279685718]
+    Login:
+      type: object
+      properties:
+        email:
+          type: string
+          example: john.doe@gmail.com
+        password:
+          type: string
+          example: 1234
   securitySchemes:
     bearerAuth:
       type: http

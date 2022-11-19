@@ -9,6 +9,8 @@ import usersRouter from "./routes/users.js";
 import groupsRouter from "./routes/groups.js";
 import reviewsRouter from "./routes/reviews.js";
 import moviesRouter from "./routes/movies.js";
+import genreRouter from "./routes/genres.js";
+import moviePeopleRouter from "./routes/moviePeople.js";
 import authRouter from "./routes/auth.js";
 import * as config from "./config.js";
 
@@ -32,6 +34,8 @@ app.use("/users", usersRouter);
 app.use("/groups", groupsRouter);
 app.use("/reviews", reviewsRouter);
 app.use("/movies", moviesRouter);
+app.use("/genres", genreRouter);
+app.use("/moviepeople", moviePeopleRouter);
 app.use("/auth", authRouter);
 
 // catch 404 and forward to error handler
