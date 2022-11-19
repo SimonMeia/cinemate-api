@@ -8,16 +8,17 @@ import { TMDB_API_KEY } from "../config.js";
 import { authenticate, authorize } from "./auth.js";
 import { ObjectId } from "mongodb";
 import { broadcastMessage } from "../ws.js";
+import {idValidation} from "../utils.js"
 
 const router = express.Router();
 
 // Get les reviews d'un user
-router.get("/users/:userID", function (req, res, next) {
-	User.find({ 'groups': req.params.groupID }).exec(function (err, users) {
+router.get("/users/:userID", idValidation, authenticate, function (req, res, next) {
+	Review.find({ 'user': req.params.userID }).exec(function (err, reviews) {
 		if (err) {
 			return next(err);
 		}
-		res.send(users);
+		res.send(reviews);
 	})
 });
 

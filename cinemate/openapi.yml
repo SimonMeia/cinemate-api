@@ -35,8 +35,6 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/UserWithReview"
-        "400":
-          description: Invalid status value
         "401":
           description: Unauthorize
       security:
@@ -167,7 +165,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/UserGet"
         "400":
-          description: Invalid status value
+          description: Invalid id value
         "401":
           $ref: "#/components/responses/401Unauthorized"
       security:
@@ -309,8 +307,6 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/GroupGet"
-        "400":
-          description: Invalid status value
         "401":
           description: Unauthorize
       security:
@@ -319,6 +315,7 @@ paths:
       tags:
         - groups
       summary: Create a new group
+      description: You must be connected to execute this query
       requestBody:
         content:
           application/json:
@@ -351,7 +348,105 @@ paths:
                 items:
                   $ref: "#/components/schemas/ReviewGetPopulated"
         "400":
-          description: Invalid status value
+          description: Invalid id value
+        "401":
+          description: Unauthorize
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+      security:
+        - bearerAuth: []
+    post:
+      tags:
+        - reviews
+      summary: Create a new review
+      description: You must be connected to execute this query
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReviewPost"
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReviewGet"
+        "400":
+          description: Invalid body value
+        "401":
+          $ref: "#/components/responses/401Unauthorized"
+      security:
+        - bearerAuth: []
+  /reviews/{reviewID}:
+    delete:
+      tags:
+        - reviews
+      summary: Delete a specific review
+      description: You must be connected to execute this query
+      parameters:
+        - name: reviewID
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Review ID
+      responses:
+        "200":
+          description: successful operation
+          content:
+            text/html:
+              schema:
+                type: string
+                example: "number of review deleted : 1"
+        "400":
+          description: Invalid id value
+        "401":
+          $ref: "#/components/responses/401Unauthorized"
+  # documenter les "?movie=xxx"
+  /reviews/mygroups:
+    get:
+      tags:
+        - reviews
+      summary: Get all reviews from the user's groups
+      description: You must be connected to execute this query
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ReviewGetPopulated"
+        "401":
+          description: Unauthorize
+      security:
+        - bearerAuth: []
+  /reviews/users/{userID}:
+    get:
+      tags:
+        - reviews
+      summary: Get all reviews from a specific user
+      description: You must be connected to execute this query
+      parameters:
+        - name: userID
+          in: path
+          required: true
+          schema:
+            type: string
+          description: User ID
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ReviewGet"
+        "400":
+          description: Invalid id value
         "401":
           description: Unauthorize
       security:
@@ -449,6 +544,14 @@ components:
         medias:
           type: array
           example: []
+    ReviewPost:
+      allOf:
+        - $ref: "#/components/schemas/ReviewBasic"
+        - type: object
+          properties:
+            tmdbID:
+              type: number
+              example: 19995
     ReviewGet:
       allOf:
         - $ref: "#/components/schemas/ReviewBasic"
