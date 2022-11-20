@@ -11,6 +11,7 @@ externalDocs:
   url: https://github.com/marilynthemo96/cinemate
 servers:
   - url: http://localhost:3000
+  - url: https://cinemate.onrender.com/
 tags:
   - name: users
   - name: groups
