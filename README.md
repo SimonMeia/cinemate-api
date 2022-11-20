@@ -5,7 +5,7 @@ Cinemate est un réseau social de critique de films.
 
 ### Projet développé par : 
 - Simon Meia
-- Maryline Themo
+- Marilyn Themo
 - Alexandre Souto
 
 ## Fonctionnalités
