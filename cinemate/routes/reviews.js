@@ -9,6 +9,7 @@ import { authenticate, authorize } from "./auth.js";
 import { ObjectId } from "mongodb";
 import { broadcastMessage } from "../ws.js";
 import {idValidation} from "../utils.js"
+import fetch from "node-fetch";
 
 const router = express.Router();
 
@@ -36,7 +37,6 @@ router.get("/", authenticate, authorize('admin'), function (req, res, next) {
 });
 
 // Get les reviews des groupes d'un user
-// localhost:3000/reviews/mygroups?movie=637244fe58d621d548734d13&page=3
 router.get("/mygroups", authenticate, function (req, res, next) {
 
 	let query = User.findOne({ 'id_': req.currentUserId }).exec(function (err, currentUser) {

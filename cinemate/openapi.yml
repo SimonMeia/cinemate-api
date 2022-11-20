@@ -419,6 +419,13 @@ paths:
             type: array
             items:
               type: string
+        - name: page
+          in: query
+          description: Pagination
+          required: false
+          explode: true
+          schema:
+            type: string
       responses:
         "200":
           description: successful operation
@@ -427,7 +434,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/ReviewGetPopulated"
+                  $ref: "#/components/schemas/ReviewPagination"
         "401":
           description: Unauthorize
       security:
@@ -687,6 +694,25 @@ components:
               type: array
               items:
                 $ref: "#/components/schemas/MovieGet"
+    ReviewPagination:
+      type: object
+      properties:
+        page:
+          type: integer
+          example: 1
+        lastPage:
+          type: integer
+          example: 5
+        pageSize:
+          type: integer
+          example: 10
+        total:
+          type: integer
+          example: 100
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/ReviewGetPopulated"
     MovieBasic:
       type: object
       properties:
