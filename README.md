@@ -1,45 +1,47 @@
 # cinemate
 
-Faire les diverses installations 
-MongoDB + Modélisation
-postman (outil pour tester les API)
-nodeJs
-Déployer sur Render
-webSocket
-Mettre en place githup
-Créer un projet expressJS
+Cinemate est un réseau social de critique de films.
+<br><br> Lien du projet : https://cinemate.onrender.com/
 
-2. Définir les éléments de la base de donnée NoSQL
-Des utilisateurs
-Des films (via API)
-Des reviews (...)
+### Projet développé par : 
+- Simon Meia
+- Maryline Themo
+- Alexandre Souto
 
-3. Fonctionnalités
-S’inscrire
-Authentification
-Mobile features (géolocalisation sur la review + prise de photos)
-Opérations CRUD
-Real time : notification sur le nombre de reviews + notif sur le nombre d’utilisateur connectés
-Liste des reviews de manière paginée 
-Rewiew avec des filtres (genre, année, date...)
-Données “agregated” ex le nombre de review par utilisateur
-JWT token (pour sécurer l’authentification)
-Les différentes permissions (qui peut faire quoi)
-Opérations limitantes (Ex être connecté pour faire une review, ne pas pouvoir supprimer la review de qln d’autre)
-Tests automatisés ex sur la base d’opérations CRUD (doit être reproductible)
+## Fonctionnalités
+Le but de l'application est de voir l'avis de nos amis ou d'autres utilisateurs sur les derniers films qu'ils ont vus. Le réseau social ne fonctionne pas avec une liste d'amis mais avec des groupes. L'utilisateur peut rejoindre un ou plusieurs groupes pour ensuite avoir accès aux reviews des membres.
+<br><br>
+Les information sur les films proviennenent de l'API de [The Movie Database](https://developers.themoviedb.org/3/getting-started/introduction).
 
-4. Autre
-Documenter l’API Rest
-Documenter le real-time component
+## Installation
+Prérequis:
+- Node.js 13.2+
+- Postman
+- MongoDB
 
-5. Respecter les standards d’implémentation
-HTTP methods, headers, status
-Code asynchrone correct
-Les routes express incorporent des messages d’erreur asynchrones
-Faire des validations sur les users
-Valider la confirmation d’un lien entre un user et une review
+1. Cloner et pull le repository
+```
+git pull
+```
+2. Installer les packages
+```
+npm i
+```
+3. Créer un fichier `.env` si vous souhatez modifier les données présentes dans le fichier `config.js`
+4. Exécuter l'application
+```
+npm run dev OU npm run start
+```
 
-6. Delivery (par mail)
-deadline : 20 novembre
-Liste des membres
-Lien du repos github + lien du render
+## Documentation
+La documentation de l'API est disponible ici : https://cinemate.onrender.com/api-docs/
+
+
+## Websocket
+L'API utilise des web sockets pour 2 choses :
+1. Notifier les utilisateurs quand une nouvelle review à été postée
+2. Notifier les utilisateurs quand un nouvel utilisateur créé son compte
+
+## Improvemens
+- [ ] Gestion des erreurs liés au fetch de données de l'API TMDB
+- [ ] ...
