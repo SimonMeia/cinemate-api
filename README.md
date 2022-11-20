@@ -38,7 +38,7 @@ La documentation de l'API est disponible ici : https://cinemate.onrender.com/api
 
 
 ## Websocket
-L'API utilise des web sockets pour 2 choses :
+L'API utilise des WebSockets pour 2 choses :
 1. Notifier les utilisateurs quand une nouvelle review à été postée
 2. Notifier les utilisateurs quand un nouvel utilisateur créé son compte
 
