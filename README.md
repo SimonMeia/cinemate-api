@@ -11,7 +11,7 @@ Cinemate est un réseau social de critique de films.
 ## Fonctionnalités
 Le but de l'application est de voir l'avis de nos amis ou d'autres utilisateurs sur les derniers films qu'ils ont vus. Le réseau social ne fonctionne pas avec une liste d'amis mais avec des groupes. L'utilisateur peut rejoindre un ou plusieurs groupes pour ensuite avoir accès aux reviews des membres.
 <br><br>
-Les information sur les films proviennenent de l'API de [The Movie Database](https://developers.themoviedb.org/3/getting-started/introduction).
+Les informations sur les films proviennenent de l'API de [The Movie Database](https://developers.themoviedb.org/3/getting-started/introduction).
 
 ## Installation
 Prérequis:
