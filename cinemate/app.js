@@ -13,6 +13,7 @@ import genreRouter from "./routes/genres.js";
 import moviePeopleRouter from "./routes/moviePeople.js";
 import authRouter from "./routes/auth.js";
 import * as config from "./config.js";
+import cors from 'cors'
 
 import mongoose from 'mongoose';
 mongoose.Promise = Promise;
@@ -42,6 +43,16 @@ app.use("/auth", authRouter);
 app.use(function (req, res, next) {
 	next(createError(404));
 });
+
+app.use('/', function (req, res, next) {
+	res.header("Access-Control-Allow-Origin", config.corsDomain); // update to match the domain you will make the request from
+	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+	next();
+});
+
+app.use(cors({
+    origin: [config.corsDomain]
+}));
 
 // error handler
 app.use(function (err, req, res, next) {
