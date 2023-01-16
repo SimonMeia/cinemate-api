@@ -8,3 +8,4 @@ export const port = process.env.PORT || '3000';
 export const jwtSecret = process.env.JWT_SECRET || "changeme";
 export const bcryptCostFactor = process.env.BCRYPT_COST_FACTOR || 10;
 export const TMDB_API_KEY = process.env.TMDB_API_KEY
+export const corsDomain = process.env.CORS_DOMAIN || 'http://localhost:8100'

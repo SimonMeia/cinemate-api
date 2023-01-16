@@ -30,6 +30,16 @@ app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+app.use('/', function (req, res, next) {
+	res.header("Access-Control-Allow-Origin", config.corsDomain);
+	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+	next();
+});
+
+app.use(cors({
+	origin: [config.corsDomain]
+}));
+
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
 app.use("/groups", groupsRouter);
@@ -44,15 +54,7 @@ app.use(function (req, res, next) {
 	next(createError(404));
 });
 
-app.use('/', function (req, res, next) {
-	res.header("Access-Control-Allow-Origin", config.corsDomain); // update to match the domain you will make the request from
-	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-	next();
-});
 
-app.use(cors({
-    origin: [config.corsDomain]
-}));
 
 // error handler
 app.use(function (err, req, res, next) {

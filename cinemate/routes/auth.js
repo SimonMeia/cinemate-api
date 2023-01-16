@@ -30,7 +30,7 @@ router.post("/login", function (req, res, next) {
 
             jwt.sign(payload, jwtSecret, function (err, token) {
                 if (err) { return next(err); }
-                res.send({ token: token }); // Send the token to the client.
+                res.send({ user: user, token: token }); // Send the token to the client.
             });
         });
     })
