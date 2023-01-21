@@ -10,6 +10,10 @@ const movieSchema = new Schema({
 		type: String,
 		required: true	
 	},
+    backdropURL:{
+        type: String,
+		required: true	
+    },
 	releaseDate: {
 		type: Date,
 		required: true	

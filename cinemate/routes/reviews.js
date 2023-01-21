@@ -38,12 +38,11 @@ router.get("/", authenticate, authorize("admin"), function (req, res, next) {
 
 // Get les reviews des groupes d'un user
 router.get("/mygroups", authenticate, function (req, res, next) {
-    let query = User.findOne({ id_: req.currentUserId }).exec(function (err, currentUser) {
+    User.findOne({ _id: req.currentUserId }).exec(function (err, currentUser) {
         if (err) {
             return next(err);
         }
-
-        User.find({ groups: { $in: currentUser.groups }, _id: { $ne: currentUser._id } }).exec(function (err, friends) {
+        User.find({ groups: { $in: currentUser.groups }}).exec(function (err, friends) {
             if (err) {
                 return next(err);
             }
@@ -173,6 +172,7 @@ async function createMovie(tmdbID) {
             title: movie.original_title,
             releaseDate: movie.release_date,
             posterURL: movie.poster_path,
+            backdropURL : movie.backdrop_path,
             tmdbID: tmdbID,
             genres: details.genresID,
             moviePeople: details.moviePeople,
