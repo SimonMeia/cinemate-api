@@ -15,12 +15,14 @@ const router = express.Router();
 
 // Get les reviews d'un user
 router.get("/users/:userID", idValidation, authenticate, function (req, res, next) {
-    Review.find({ user: req.params.userID }).exec(function (err, reviews) {
-        if (err) {
-            return next(err);
-        }
-        res.send(reviews);
-    });
+    Review.find({ user: req.params.userID })
+        .populate("movie")
+        .exec(function (err, reviews) {
+            if (err) {
+                return next(err);
+            }
+            res.send(reviews);
+        });
 });
 
 // Get toutes les reviews
@@ -42,7 +44,7 @@ router.get("/mygroups", authenticate, function (req, res, next) {
         if (err) {
             return next(err);
         }
-        User.find({ groups: { $in: currentUser.groups }}).exec(function (err, friends) {
+        User.find({ groups: { $in: currentUser.groups } }).exec(function (err, friends) {
             if (err) {
                 return next(err);
             }
@@ -138,7 +140,7 @@ router.delete("/:reviewID", authenticate, function (req, res, next) {
         if (err) {
             return next(err);
         }
-        res.send("number of review deleted : " + review.deletedCount);
+        res.send({ deleteCount: review.deletedCount });
     });
 });
 
