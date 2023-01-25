@@ -163,14 +163,4 @@ router.delete('/:userID/groups/:groupID', idValidation, authenticate, authorize(
 	});
 })
 
-// Get les users d'un groupe
-router.get("/:groupID", idValidation, authenticate, function (req, res, next) {
-	User.find({ 'groups': req.params.groupID }).exec(function (err, users) {
-		if (err) {
-			return next(err);
-		}
-		res.send(users);
-	})
-});
-
 export default router;

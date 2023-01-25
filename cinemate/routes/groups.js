@@ -3,6 +3,7 @@ import Group from '../models/group.js'
 import User from '../models/user.js'
 import { authenticate } from "./auth.js";
 import bcrypt from 'bcrypt'
+import { idValidation } from "../utils.js";
 
 const router = express.Router();
 
@@ -50,5 +51,15 @@ router.post("/", authenticate, function (req, res, next) {
 		});
 	});
 })
+
+// Get les users d'un groupe
+router.get("/:groupID/users", idValidation, authenticate, function (req, res, next) {
+	User.find({ 'groups': req.params.groupID }).exec(function (err, users) {
+		if (err) {
+			return next(err);
+		}
+		res.send(users);
+	})
+});
 
 export default router;
