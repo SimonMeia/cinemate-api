@@ -29,7 +29,11 @@ const movieSchema = new Schema({
 	genres: [{
 		type: Schema.Types.ObjectId,
 		ref: 'Genre'
-	}]
+	}],
+    popularity:{
+        type: Number,
+        required: true
+    }
 });
 // Create the model from the schema and export it
 export default mongoose.model('Movie', movieSchema)

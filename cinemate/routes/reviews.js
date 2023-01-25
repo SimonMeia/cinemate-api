@@ -10,6 +10,7 @@ import { ObjectId } from "mongodb";
 import { broadcastMessage } from "../ws.js";
 import { idValidation } from "../utils.js";
 import fetch from "node-fetch";
+import Group from "../models/group.js";
 
 const router = express.Router();
 
@@ -17,6 +18,7 @@ const router = express.Router();
 router.get("/users/:userID", idValidation, authenticate, function (req, res, next) {
     Review.find({ user: req.params.userID })
         .populate("movie")
+        .populate("user")
         .exec(function (err, reviews) {
             if (err) {
                 return next(err);
@@ -25,6 +27,37 @@ router.get("/users/:userID", idValidation, authenticate, function (req, res, nex
         });
 });
 
+// Get les reviews d'un groupe
+router.get("/groups/:groupID", idValidation, authenticate, function (req, res, next) {
+    User.find({ groups: req.params.groupID }).exec(function (err, friends) {
+        if (err) {
+            return next(err);
+        }
+        friends = friends.map((f) => f._id);
+
+        Review.find({ user: { $in: friends } })
+            .populate("movie")
+            .populate("user")
+            .exec(function (err, reviews) {
+                if (err) {
+                    return next(err);
+                }
+                res.send(reviews);
+            });
+    });
+});
+// Get les reviews d'un film
+router.get("/movies/:movieID", idValidation, authenticate, function (req, res, next) {
+    Review.find({ movie: req.params.movieID })
+        .populate("movie")
+        .populate("user")
+        .exec(function (err, reviews) {
+            if (err) {
+                return next(err);
+            }
+            res.send(reviews);
+        });
+});
 // Get toutes les reviews
 router.get("/", authenticate, authorize("admin"), function (req, res, next) {
     Review.find()
@@ -174,10 +207,11 @@ async function createMovie(tmdbID) {
             title: movie.original_title,
             releaseDate: movie.release_date,
             posterURL: movie.poster_path,
-            backdropURL : movie.backdrop_path,
+            backdropURL: movie.backdrop_path,
             tmdbID: tmdbID,
             genres: details.genresID,
             moviePeople: details.moviePeople,
+            popularity: movie.popularity,
         };
 
         const newMovie = new Movie(movieData);
