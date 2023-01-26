@@ -11,10 +11,10 @@ const groupSchema = new Schema({
 		type: String,
 		required: true
 	},
-	password: {
-		type: String,
-		required: true
-	}
+	// password: {
+	// 	type: String,
+	// 	required: true
+	// }
 });
 
 groupSchema.set("toJSON", {
@@ -22,7 +22,7 @@ groupSchema.set("toJSON", {
 });
 function transformJsonUser(doc, json, options) {
 	// Remove the hashed password from the generated JSON.
-	delete json.password;
+	// delete json.password;
 	return json;
 }
 

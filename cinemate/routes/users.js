@@ -53,13 +53,24 @@ router.post("/", function (req, res, next) {
         }
 
         const newUser = new User(req.body);
-        newUser.password = hashedPassword;
-        newUser.save(function (err, savedUser) {
+        User.findOne({ email: req.body.email }).exec(function (err, user) {
             if (err) {
                 return next(err);
             }
-            res.send(savedUser);
-            broadcastMessage({ message: "Il y a un nouvel utilisateur sur cinemate !" });
+            if (user) {
+                let err = new Error("Ressource already exists");
+                err.status = 406;
+                return next(err);
+            } else {
+                newUser.password = hashedPassword;
+                newUser.save(function (err, savedUser) {
+                    if (err) {
+                        return next(err);
+                    }
+                    res.send(savedUser);
+                    broadcastMessage({ message: "Il y a un nouvel utilisateur sur cinemate !" });
+                });
+            }
         });
     });
 });
