@@ -92,6 +92,8 @@ router.get("/mygroups", authenticate, function (req, res, next) {
                 query.populate("user");
                 query.populate("movie");
 
+                query.sort({ date: 1 });
+
                 /**
                  * DYNAMIC FILTERS
                  */
