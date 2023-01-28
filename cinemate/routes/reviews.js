@@ -89,10 +89,10 @@ router.get("/mygroups", authenticate, function (req, res, next) {
                 }
 
                 let query = Review.find({ user: { $in: friends } });
-                query.populate("user");
-                query.populate("movie");
+                // query.populate("user");
+                // query.populate("movie");
 
-                query.sort({ date: 1 });
+                query.sort({ date: -1 });
 
                 /**
                  * DYNAMIC FILTERS
@@ -112,12 +112,13 @@ router.get("/mygroups", authenticate, function (req, res, next) {
                         return next(err);
                     }
 
+                    console.log(reviews)
+
                     /**
                      * PAGINATION
                      */
                     // Parse the "pageSize" param (default to 100 if invalid)
                     let pageSize = parseInt(req.query.pageSize, 10);
-                    console.log(req.query.pageSize)
                     if (isNaN(pageSize) || pageSize < 0 || pageSize > 100) {
                         pageSize = 100;
                     }
@@ -134,6 +135,8 @@ router.get("/mygroups", authenticate, function (req, res, next) {
                     }
                     // Apply skip and limit to select the correct page of elements
                     reviews = reviews.splice((page - 1) * pageSize, (page - 1) * pageSize + pageSize);
+                    console.log('-------')
+                    console.log(reviews)
                     res.send({
                         page: page,
                         lastPage: pageMax,
