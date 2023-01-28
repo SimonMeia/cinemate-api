@@ -89,8 +89,8 @@ router.get("/mygroups", authenticate, function (req, res, next) {
                 }
 
                 let query = Review.find({ user: { $in: friends } });
-                // query.populate("user");
-                // query.populate("movie");
+                query.populate("user");
+                query.populate("movie");
 
                 query.sort({ date: -1 });
 
