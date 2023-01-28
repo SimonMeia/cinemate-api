@@ -115,24 +115,27 @@ router.get("/mygroups", authenticate, function (req, res, next) {
                     pageSize = 100;
                 }
 
-                let pageMax = 0;
-                if (total % pageSize == 0) {
-                    pageMax = total / pageSize;
-                } else {
-                    pageMax = Math.trunc(total / pageSize) + 1;
-                }
-                // Parse the "page" param (default to 1 if invalid)
-                let page = parseInt(req.query.page, 10);
-                if (isNaN(page) || page < 1 || page > pageMax) {
-                    page = 1;
-                }
-                // Apply skip and limit to select the correct page of elements
-                query = query.skip((page - 1) * pageSize).limit(pageSize);
-
                 query.exec(function (err, reviews) {
                     if (err) {
                         return next(err);
                     }
+
+                    let pageMax = 0;
+                    if (total % pageSize == 0) {
+                        pageMax = total / pageSize;
+                    } else {
+                        pageMax = Math.trunc(total / pageSize) + 1;
+                    }
+                    // Parse the "page" param (default to 1 if invalid)
+                    let page = parseInt(req.query.page, 10);
+                    if (isNaN(page) || page < 1 || page > pageMax) {
+                        page = 1;
+                    }
+                    // Apply skip and limit to select the correct page of elements
+                    // query = query.skip((page - 1) * pageSize).limit(pageSize);
+
+                    reviews.slice((page - 1) * pageSize, (page - 1) * pageSize + pageSize)
+
                     res.send({
                         page: page,
                         lastPage: pageMax,
