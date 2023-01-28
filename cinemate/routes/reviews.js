@@ -222,6 +222,8 @@ async function createMovie(tmdbID) {
             popularity: movie.popularity,
         };
 
+        console.log(movieData)
+
         const newMovie = new Movie(movieData);
 
         newMovie.save(function (err, savedMovie) {
