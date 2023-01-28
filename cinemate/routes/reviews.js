@@ -106,20 +106,21 @@ router.get("/mygroups", authenticate, function (req, res, next) {
                     // Find all review from certains movies
                     query = query.where("movie").equals(req.query.movie);
                 }
-                /**
-                 * PAGINATION
-                 */
-                // Parse the "pageSize" param (default to 100 if invalid)
-                let pageSize = parseInt(req.query.pageSize, 10);
-                if (isNaN(pageSize) || pageSize < 0 || pageSize > 100) {
-                    pageSize = 100;
-                }
 
                 query.exec(function (err, reviews) {
                     if (err) {
                         return next(err);
                     }
 
+                    /**
+                     * PAGINATION
+                     */
+                    // Parse the "pageSize" param (default to 100 if invalid)
+                    let pageSize = parseInt(req.query.pageSize, 10);
+                    console.log(req.query.pageSize)
+                    if (isNaN(pageSize) || pageSize < 0 || pageSize > 100) {
+                        pageSize = 100;
+                    }
                     let pageMax = 0;
                     if (total % pageSize == 0) {
                         pageMax = total / pageSize;
@@ -132,10 +133,7 @@ router.get("/mygroups", authenticate, function (req, res, next) {
                         page = 1;
                     }
                     // Apply skip and limit to select the correct page of elements
-                    // query = query.skip((page - 1) * pageSize).limit(pageSize);
-
-                    reviews.slice((page - 1) * pageSize, (page - 1) * pageSize + pageSize)
-
+                    reviews = reviews.splice((page - 1) * pageSize, (page - 1) * pageSize + pageSize);
                     res.send({
                         page: page,
                         lastPage: pageMax,
