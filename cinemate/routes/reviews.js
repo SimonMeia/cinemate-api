@@ -112,7 +112,7 @@ router.get("/mygroups", authenticate, function (req, res, next) {
                         return next(err);
                     }
 
-                    console.log(reviews)
+                    // console.log(reviews)
 
                     /**
                      * PAGINATION
@@ -134,15 +134,17 @@ router.get("/mygroups", authenticate, function (req, res, next) {
                         page = 1;
                     }
                     // Apply skip and limit to select the correct page of elements
-                    reviews = reviews.splice((page - 1) * pageSize, (page - 1) * pageSize + pageSize);
-                    console.log('-------')
-                    console.log(reviews)
+                    console.log((page - 1) * pageSize, (page - 1) * pageSize + pageSize)
+                    let paginatiedReviews = reviews.slice((page - 1) * pageSize, (page - 1) * pageSize + pageSize);
+                    console.log(paginatiedReviews.length)
+                    // console.log('-------')
+                    // console.log(reviews)
                     res.send({
                         page: page,
                         lastPage: pageMax,
                         pageSize: pageSize,
                         total: total,
-                        data: reviews,
+                        data: paginatiedReviews,
                     });
                 });
             });
