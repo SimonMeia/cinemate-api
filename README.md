@@ -1,7 +1,6 @@
-# cinemate
+# cinemate-api
 
-Cinemate est un réseau social de critique de films.
-<br><br> Lien du projet : https://cinemate.onrender.com/
+Cinemate est un réseau social de critique de films. Ce repository contient l'API qui permet à [l'application cinemate](https://github.com/SimonMeia/cinemate-app) de fonctionner.
 
 ### Projet développé par : 
 - Simon Meia
@@ -43,5 +42,5 @@ L'API utilise des WebSockets pour 2 choses :
 2. Notifier les utilisateurs quand un nouvel utilisateur créé son compte
 
 ## Improvemens
-- [ ] Gestion des erreurs liés au fetch de données de l'API TMDB
+- [x] Gestion des erreurs liés au fetch de données de l'API TMDB
 - [ ] ...
