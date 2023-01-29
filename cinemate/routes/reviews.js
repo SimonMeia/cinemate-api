@@ -153,7 +153,7 @@ router.get("/mygroups", authenticate, function (req, res, next) {
 // Créé une review
 router.post("/", authenticate, findMovieID, async function (req, res, next) {
     req.body.user = req.currentUserId;
-    if(req.body.status){
+    if (req.body.status) {
         let err = new Error();
         err.message = req.body.message;
         err.status = req.body.status;
@@ -197,6 +197,8 @@ function findMovieID(req, res, next) {
 
         if (!movie) {
             await createMovie(req.body.tmdbID).then((m) => {
+                console.log("FindMovieID");
+                console.log(m);
                 if (!m._id) {
                     req.body = m;
                 } else {
@@ -229,30 +231,36 @@ async function createMovie(tmdbID) {
         return err;
     }
 
-    return await getMovieDetails(movie, credits).then((details) => {
-        let movieData = {
-            title: movie.original_title,
-            releaseDate: movie.release_date,
-            posterURL: movie.poster_path,
-            backdropURL: movie.backdrop_path,
-            tmdbID: tmdbID,
-            genres: details.genresID,
-            moviePeople: details.moviePeople,
-            popularity: movie.popularity,
-        };
+    let movieDetails = await getMovieDetails(movie, credits);
 
-        console.log(movieData);
-
-        // const newMovie = new Movie(movieData);
-
-        // newMovie.save(function (err, savedMovie) {
-        //     if (err) {
-        //         return next(err);
-        //     }
-        // });
-
-        // return newMovie;
+    let movieData = {
+        title: movie.original_title,
+        releaseDate: movie.release_date,
+        posterURL: movie.poster_path,
+        backdropURL: movie.backdrop_path,
+        tmdbID: tmdbID,
+        genres: movieDetails.genresID,
+        moviePeople: movieDetails.moviePeople,
+        popularity: movie.popularity,
+    };
+    let movieValidity = true
+    Object.values(movieData).forEach((val) => {
+        if (val == null) {
+            movieValidity = false
+        }
     });
+    if(!movieValidity){
+        let err = new Error();
+        err.message = 'Missing movie field';
+        err.status = 400;
+        return err
+    }
+
+    const newMovie = new Movie(movieData);
+
+    newMovie.save()
+    
+    return newMovie
 }
 
 async function getMovieDetails(movie, credits) {
@@ -307,7 +315,6 @@ async function getMovieGenreIDs(movieGenres) {
             genresIDarray.push(genreDB._id);
         }
     }
-
     return genresIDarray;
 }
 export default router;
