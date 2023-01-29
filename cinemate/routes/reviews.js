@@ -112,8 +112,6 @@ router.get("/mygroups", authenticate, function (req, res, next) {
                         return next(err);
                     }
 
-                    // console.log(reviews)
-
                     /**
                      * PAGINATION
                      */
@@ -134,9 +132,9 @@ router.get("/mygroups", authenticate, function (req, res, next) {
                         page = 1;
                     }
                     // Apply skip and limit to select the correct page of elements
-                    console.log((page - 1) * pageSize, (page - 1) * pageSize + pageSize)
+                    console.log((page - 1) * pageSize, (page - 1) * pageSize + pageSize);
                     let paginatiedReviews = reviews.slice((page - 1) * pageSize, (page - 1) * pageSize + pageSize);
-                    console.log(paginatiedReviews.length)
+                    console.log(paginatiedReviews.length);
                     // console.log('-------')
                     // console.log(reviews)
                     res.send({
@@ -155,13 +153,18 @@ router.get("/mygroups", authenticate, function (req, res, next) {
 // Créé une review
 router.post("/", authenticate, findMovieID, async function (req, res, next) {
     req.body.user = req.currentUserId;
+    if(req.body.status){
+        let err = new Error();
+        err.message = req.body.message;
+        err.status = req.body.status;
+        return next(err);
+    }
     const newReview = new Review(req.body);
 
     newReview.save(function (err, savedReview) {
         if (err) {
             return next(err);
         }
-        console.log(savedReview._id);
         Review.findOne({ _id: savedReview._id })
             .populate("user")
             .populate("movie")
@@ -194,7 +197,11 @@ function findMovieID(req, res, next) {
 
         if (!movie) {
             await createMovie(req.body.tmdbID).then((m) => {
-                req.body.movie = m._id;
+                if (!m._id) {
+                    req.body = m;
+                } else {
+                    req.body.movie = m._id;
+                }
                 next();
             });
         } else {
@@ -207,8 +214,20 @@ function findMovieID(req, res, next) {
 async function createMovie(tmdbID) {
     const response = await fetch(`https://api.themoviedb.org/3/movie/${tmdbID}?api_key=${TMDB_API_KEY}`);
     const movie = await response.json();
+    if (movie.success == false) {
+        let err = new Error();
+        err.message = movie.status_message;
+        err.status = 400;
+        return err;
+    }
     const responseCredits = await fetch(`https://api.themoviedb.org/3/movie/${tmdbID}/credits?api_key=${TMDB_API_KEY}`);
     const credits = await responseCredits.json();
+    if (credits.success == false) {
+        let err = new Error();
+        err.message = credits.status_message;
+        err.status = 400;
+        return err;
+    }
 
     return await getMovieDetails(movie, credits).then((details) => {
         let movieData = {
@@ -222,17 +241,17 @@ async function createMovie(tmdbID) {
             popularity: movie.popularity,
         };
 
-        console.log(movieData)
+        console.log(movieData);
 
-        const newMovie = new Movie(movieData);
+        // const newMovie = new Movie(movieData);
 
-        newMovie.save(function (err, savedMovie) {
-            if (err) {
-                return next(err);
-            }
-        });
+        // newMovie.save(function (err, savedMovie) {
+        //     if (err) {
+        //         return next(err);
+        //     }
+        // });
 
-        return newMovie;
+        // return newMovie;
     });
 }
 
